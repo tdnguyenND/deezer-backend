@@ -1,0 +1,1 @@
+from .id_primary_key_model import IdPrimaryKeyModel

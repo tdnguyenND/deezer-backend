@@ -263,3 +263,5 @@ STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
 
 GS_SONG_BASE_DIR = 'song/'
 GS_PICTURE_BASE_DIR = 'picture/'
+
+UPLOAD_SONG_FORM_ARTIST_DELIMITERS = os.environ.get('UPLOAD_SONG_FORM_ARTIST_DELIMITERS')

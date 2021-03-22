@@ -1,10 +1,14 @@
+import re
+
 from rest_framework.decorators import action
 from rest_framework.mixins import ListModelMixin, RetrieveModelMixin
 from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 
+from deezer.settings import UPLOAD_SONG_FORM_ARTIST_DELIMITERS
 from deezer.view_sets import AuthenticatedGenericViewSet
-from song.models import Song
+from song.functions import artist_from_name
+from song.models import Song, SongArtist
 from song.serializers import UserSongSerializer
 from song.services import upload_song_to_storage, upload_picture_to_storage
 
@@ -15,19 +19,22 @@ class SongViewSet(AuthenticatedGenericViewSet, RetrieveModelMixin, ListModelMixi
 
     @action(methods=['post'], detail=False, url_path='upload')
     def upload_song(self, request):
+        request_data = request.data
         audio_file = request.FILES.getlist('audio_file')[0]
         song_url = upload_song_to_storage(audio_file)
 
         picture_file = request.FILES.getlist('picture_file')[0]
         picture_url = upload_picture_to_storage(picture_file)
+        artists = map(lambda s: artist_from_name(' '.join(s.split())),
+                      re.split(UPLOAD_SONG_FORM_ARTIST_DELIMITERS, request_data.get('artist')))
 
-        request_data = request.data
-        artist = request_data.get('artist')
         title = request_data.get('title')
         album = request_data.get('album')
 
-        song = Song.objects.create(title=title, artist=artist, album=album, picture_url=picture_url, song_url=song_url,
+        song = Song.objects.create(title=title, album=album, picture_url=picture_url, song_url=song_url,
                                    owner=request.user)
+        for artist in artists:
+            SongArtist.objects.create(song=song, artist=artist)
 
         return Response(UserSongSerializer(song).data)
 

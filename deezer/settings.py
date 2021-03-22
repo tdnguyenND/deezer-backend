@@ -10,8 +10,11 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/2.2/ref/settings/
 """
 import datetime
+import json
 import os
 import logging
+
+from google.oauth2 import service_account
 
 logger = logging.getLogger(__name__)
 
@@ -76,6 +79,7 @@ INSTALLED_APPS = [
     'debug_toolbar',
     'django_filters',
     'user',
+    'song'
 ]
 
 MIDDLEWARE = [
@@ -88,6 +92,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'deezer.middlewares.AuthMiddleware',
 ]
 
 ROOT_URLCONF = 'deezer.urls'
@@ -236,3 +241,25 @@ if os.environ.get('COOKIE_SECURE'):
 STATIC_URL = '/static/'
 
 GOOGLE_CLIENT_ID = os.environ.get('GOOGLE_CLIENT_ID')
+
+# Google storage settings
+DEFAULT_FILE_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+GS_BUCKET_NAME = os.environ.get('GS_BUCKET_NAME')
+GS_TEMP_BUCKET_NAME = os.environ.get('GS_TEMP_BUCKET_NAME')
+GS_TEMP_UPLOAD_DIR = os.getenv('GS_TEMP_UPLOAD_DIR', 'temp')
+if os.environ.get('GS_CREDENTIALS_FILE_PATH') is not None:
+    GS_CREDENTIALS = service_account.Credentials.from_service_account_file(
+        os.environ.get('GS_CREDENTIALS_FILE_PATH'))
+elif os.environ.get('GS_CREDENTIALS') is not None:
+    GS_CREDENTIALS = service_account.Credentials.from_service_account_info(
+        json.loads(os.environ.get('GS_CREDENTIALS')))
+GS_DEFAULT_ACL = 'private'
+GS_EXPIRATION = datetime.timedelta(int(os.environ.get('GS_EXPIRATION') or "1209600"))  # default 2 weeks
+MEDIA_URL = 'media/'
+
+GS_PUBLIC_BUCKET_NAME = os.environ.get('GS_PUBLIC_BUCKET_NAME')
+STATICFILES_STORAGE = 'storages.backends.gcloud.GoogleCloudStorage'
+
+GS_SONG_BASE_DIR = 'song/'
+GS_PICTURE_BASE_DIR = 'picture/'

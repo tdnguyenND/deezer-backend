@@ -1,5 +1,3 @@
-import logging
-
 from deezer.settings import ACCESS_TOKEN_HEADER
 
 

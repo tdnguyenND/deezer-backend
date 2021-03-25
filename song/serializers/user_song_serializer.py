@@ -1,10 +1,12 @@
 from rest_framework.serializers import ModelSerializer, SerializerMethodField
 
 from song.models import Song, SongArtist
+from user.serializers import UserSerializer
 
 
 class UserSongSerializer(ModelSerializer):
     artist = SerializerMethodField()
+    owner = UserSerializer()
 
     @staticmethod
     def get_artist(instance):
@@ -12,4 +14,4 @@ class UserSongSerializer(ModelSerializer):
 
     class Meta:
         model = Song
-        fields = ['id', 'title', 'artist', 'album', 'picture_url', 'song_url']
+        fields = ['id', 'title', 'artist', 'album', 'picture_url', 'song_url', 'owner']

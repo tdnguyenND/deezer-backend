@@ -11,10 +11,12 @@ from song.functions import artist_from_name
 from song.models import Song, SongArtist
 from song.serializers import UserSongSerializer
 from song.services import upload_song_to_storage, upload_picture_to_storage
+from song.filters import SongFilter
 
 
 class SongViewSet(AuthenticatedGenericViewSet, RetrieveModelMixin, ListModelMixin):
     queryset = Song.objects.all()
+    filterset_class = SongFilter
     serializer_class = UserSongSerializer
 
     @action(methods=['post'], detail=False, url_path='upload')
@@ -37,6 +39,11 @@ class SongViewSet(AuthenticatedGenericViewSet, RetrieveModelMixin, ListModelMixi
             SongArtist.objects.create(song=song, artist=artist)
 
         return Response(UserSongSerializer(song).data)
+
+    @action(methods=['get'], detail=False, url_path='search', permission_classes=[AllowAny])
+    def search_song(self, request):
+        qs = self.filter_queryset(self.get_queryset())
+        return Response(self.get_serializer(qs, many=True).data)
 
     @action(methods=['get'], detail=False, url_path='discovery', permission_classes=[AllowAny])
     def get_discovery_list(self, request, *args, **kwargs):

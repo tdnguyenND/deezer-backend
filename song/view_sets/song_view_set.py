@@ -52,7 +52,9 @@ class SongViewSet(AuthenticatedGenericViewSet, RetrieveModelMixin, ListModelMixi
     def test(self, request, *args, **kwargs):
         x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
         if x_forwarded_for:
+            field = 'HTTP_X_FORWARDED_FOR'
             ip = x_forwarded_for.split(',')[0]
         else:
+            field = 'REMOTE_ADDR'
             ip = request.META.get('REMOTE_ADDR')
-        return Response({'ip': ip})
+        return Response({'ip': ip, 'field': field})

@@ -47,3 +47,12 @@ class SongViewSet(AuthenticatedGenericViewSet, RetrieveModelMixin, ListModelMixi
     def get_history_list(self, request, *args, **kwargs):
         qs = self.get_queryset()[:min(50, self.get_queryset().count())]
         return Response(self.get_serializer(qs, many=True).data)
+
+    @action(methods=['get'], detail=False, url_path='test', permission_classes=[AllowAny])
+    def test(self, request, *args, **kwargs):
+        x_forwarded_for = request.META.get('HTTP_X_FORWARDED_FOR')
+        if x_forwarded_for:
+            ip = x_forwarded_for.split(',')[0]
+        else:
+            ip = request.META.get('REMOTE_ADDR')
+        return Response({'ip': ip})

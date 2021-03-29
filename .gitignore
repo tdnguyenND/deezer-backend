@@ -1,7 +1,7 @@
 .env
 /pgdata
 /.idea
+venv/
 venv
 /venv
-venv/
 __pycache__/

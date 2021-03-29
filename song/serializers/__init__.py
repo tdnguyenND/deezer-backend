@@ -1,1 +1,2 @@
 from .user_song_serializer import UserSongSerializer
+from .playlist_serializer import PlaylistSerializer
